@@ -1,0 +1,63 @@
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      id: wifi_ip
+      name: $u_devicename IP Address
+    ssid:
+      id: wifi_ssid
+      name: $u_devicename SSID
+  - platform: template
+    name: $devicename code
+    id: codeT
+    lambda: return {};
+  - platform: template
+    name: $devicename output key
+    id: output_key
+    lambda: return {};
+
+  - platform: homeassistant
+    id: password
+    entity_id: input_text.entrance_pw
+    internal: true
+  - platform: homeassistant
+    id: cover
+    entity_id: cover.garage_ha
+    internal: true
+    on_value:
+      then:
+        - display.page.show: garage_p
+        - component.update: my_display
+        - globals.set:
+            id: my_interval
+            value: '1'
+  - platform: homeassistant
+    id: time_2close
+    entity_id: sensor.time_2close
+    internal: true
+  - platform: homeassistant
+    id: alarm_id
+    entity_id: alarm_control_panel.home_alarm
+    internal: true
+    on_value:
+      then:
+        - display.page.show: alarm_p
+        - component.update: my_display
+        - globals.set:
+            id: my_interval
+            value: '1'
+  - platform: homeassistant
+    id: downstairs_t 
+    entity_id: climate.thermostat1
+    internal: true
+  - platform: homeassistant
+    id: suite_t 
+    entity_id: climate.thermostat3
+    internal: true
+  - platform: homeassistant
+    id: office_t 
+    entity_id: climate.thermostat4
+    internal: true
+  - platform: homeassistant
+    id: kitchen_t 
+    entity_id: climate.thermostat5
+    internal: true

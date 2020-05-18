@@ -1,0 +1,37 @@
+script:
+  - id: buzzer_s_on
+    then:
+      - output.set_level:
+          id: buzzer
+          level: 50%
+
+  - id: ast
+    then:
+      - homeassistant.service:
+          service: script.keypad_ast
+  - id: set_alarm_night
+    then:
+      - homeassistant.service:
+          service: alarm_control_panel.alarm_arm_night
+          data:
+            entity_id: alarm_control_panel.home_alarm
+  - id: set_alarm_home
+    then:
+      - homeassistant.service:
+          service: alarm_control_panel.alarm_arm_home
+          data:
+            entity_id: alarm_control_panel.home_alarm
+  - id: set_alarm_away
+    then:
+      - homeassistant.service:
+          service: alarm_control_panel.alarm_arm_away
+          data:
+            entity_id: alarm_control_panel.home_alarm
+  - id: disarm_alarm
+    then:
+      - homeassistant.service:
+          service: script.disarm_alarm_conditional
+  - id: toggle_alarm
+    then:
+      - homeassistant.service:
+          service: script.toggle_alarm

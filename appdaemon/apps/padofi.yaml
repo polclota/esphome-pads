@@ -1,0 +1,135 @@
+padofiKeys:
+  module: padKeys
+  class: padKeys
+  key: sensor.padofi_output_key
+  message_service: esphome.padofi_message
+  keys: 
+    1+:
+      entity_id: switch.office_relays_relay_1
+      service: switch.toggle
+      # message: Toggling PC
+    2+:
+      entity_id: switch.office_relays_relay_2
+      service: switch.toggle
+    3+: 
+      entity_id: switch.office_relays_relay_3
+      service: switch.toggle
+    4+: 
+      entity_id: switch.office_relays_relay_4
+      service: switch.toggle
+    5+: 
+      # entity_id: switch.sonoff_s20_00_relay
+      entity_id: switch.rpi1_built_in_gpio_office_lens
+      service: switch.toggle
+      message: 'Commutada*la lupa*del despatx*de: {0} a {1}!'
+      # message: 'Commutada*lampada*menjador*de: {0} a {1}!'
+      # service: script.beep1
+    6+: 
+      entity_id: switch.sonoff_t1_2ch_relay_2
+      service: switch.toggle
+      message: 'Commutant*la llum*del despatx*de: {0} a {1}!'
+    7+: 
+      service: script.on_press_sonoffs20_05 
+      message: 'Commutant*thermostat*suite*de: {0} a {1}!'
+    8+: 
+      service: script.on_press_sonoffth_10
+      message: 'Commutant*thermostat*cuina*de: {0} a {1}!'
+    9+: 
+      service: script.on_press_sonoffs20_06 
+      message: 'Commutat*thermostat*oficina*de: {0} a {1}!'
+    0+: 
+      service: script.all_therm_off
+    A:  
+      entity_id: cover.garage_ha
+      service: cover.open_cover
+      message: Obrint*porta garage*status*{0} a {1}!
+    B:  
+      entity_id: cover.garage_ha
+      service: cover.stop_cover
+      message: Parant*porta garage*status*{0} a {1}!
+    C:  
+      entity_id: cover.garage_ha
+      service: cover.close_cover
+      message: Tancant*porta garage*status*{0} a {1}!
+    D:  
+      entity_id: switch.fence_all_doors
+      service: switch.turn_on
+      message: Obrint*porta tanca*exterior
+
+    A+: 
+      service: script.switch_all_office 
+      message: Commuta*tots els*reles*oficina
+    B+: 
+      service: script.button_b 
+      message: Commuta*3 dels 4*reles*oficina
+    C+: 
+      service: script.both_doors 
+      message: Obre*porta*tanca*i garage
+    D+: 
+      service: script.open_garage_door_then_close
+      message: Obrint garage*llavors tancant*y obrint*porta tanca!
+    "*+": 
+      service: input_boolean.toggle
+      entity_id: input_boolean.boolean_5
+      message: Commutant*tancat auto*porta garage*de {0} a {1}!
+    "#+":
+      service: switch.toggle
+      entity_id: switch.sonoff_s20_00_relay
+      message: Commutant*llum*menjador*de {0} a {1}!
+
+padofiCodes:
+  module: padCodes
+  class: padCodes
+  code: sensor.padofi_code
+  message_service: esphome.padofi_message
+  nuki:
+    lock: your id
+    bearer: your bearer
+    # action_ok: script.nuki1_full_unlock
+    action_ok: script.rpi_green_led
+    # action_ok: switch.sonoff_s20_00_relay
+    action_ko: script.rpi_red_led
+  codes: 
+    1234:
+      enabled: true
+      options: # only first 4 will display, the rest will work without being displayed
+        A:
+          name: Both doors
+          ha: # any Home Assistant entity/service
+            # entity_id: switch.sonoff_s20_00_relay
+            # service: switch.toggle
+            service: script.rpi_green_led
+            # relay: 1 # internal really number
+            # rest: # REStful command
+            #   method: GET # POST, PUT 
+            #   url:
+            #   headers:
+            #   body:
+            # mqtt: # mqtt command
+            #   topic: 
+            #   payload:
+        B:
+          name: Fence door right
+          ha: # any Home Assistant entity/service
+            service: script.beep1
+            # entity_id: switch.office_relays_relay_1
+            # service: switch.toggle
+        C:
+          name: Fence both doors
+          ha: # any Home Assistant entity/service
+            entity_id: switch.office_relays_relay_1
+            service: switch.toggle
+        D:
+          name: Garage rool up
+          ha: # any Home Assistant entity/service
+            entity_id: switch.office_relays_relay_1
+            service: switch.toggle
+      time:
+        allowedFromDate: 2019-05-14T10:43:07.000Z 
+        allowedUntilDate: 2019-05-14T10:43:07.000Z
+        allowedWeekDays: 127
+        allowedFromTime: 2019-05-14T10:43:07.000Z
+        allowedUntilTime: 2019-05-14T10:43:07.000Z
+        lastActiveDate: 2019-05-14T10:43:07.000Z
+        creationDate: 2019-05-14T10:43:07.000Z
+        updateDate: 2019-08-31T04:58:14.633Z

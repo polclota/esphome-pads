@@ -1,0 +1,33 @@
+substitutions:
+  devicename: padout
+  u_devicename: "Outdoors keyboad"
+  platform: ESP8266
+  board: d1_mini
+  arm_delay_max: "15"
+  location: out # in/out = indoors/outdoors
+  relay_present: "false"
+  relay_name: "" # give a name to the relay, let's say Gate, Door, etc. It must be defined even if it's not present.
+  relay_pw: "" # max length 6 digit
+  out_temp: "sensor.rpi1_ble_outdoors_lywsd03mmc_temperature"
+  out_hum: "sensor.rpi1_ble_outdoors_lywsd03mmc_humidity"
+  in_temp: "sensor.sonoff_s20_01_temperature"
+  in_hum: "sensor.sonoff_s20_01_humidity"
+  output_platform: esp8266_pwm
+  output_pin: D7
+  status_led: D4
+  relay_pin: D5
+  led_pin: D6
+  sda_pin: D2
+  scl_pin: D1
+
+<<: !include "!pads.out/pad_common.yaml"
+# <<: !include "!pads/pad_common.yaml"
+
+wifi:
+  networks:
+  # fast_connect: on 
+  - ssid: "OixCanCasicaRouter"
+    password: "polclotagou10"
+  - ssid: "Oix-AP(2.4G)"
+    password: "polclotagou10"
+    

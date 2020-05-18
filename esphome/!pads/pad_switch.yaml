@@ -1,0 +1,34 @@
+switch:
+  - platform: restart
+    name: $u_devicename restart
+  - platform: gpio
+    id: led_id
+    internal: true
+    pin:
+      number: $led_pin
+  - platform: gpio
+    name: $u_devicename relay
+    pin: $relay_pin
+    id: relay
+    on_turn_on:
+    - if:
+        condition:
+          - api.connected:
+        then:
+          - display.page.show: relay_p
+          - component.update: my_display
+          - globals.set:
+              id: my_interval
+              value: '2'
+          - delay: 500ms
+          - switch.turn_off: relay
+    on_turn_off:
+    - if:
+        condition:
+          - api.connected:
+        then:
+          - display.page.show: relay_p
+          - component.update: my_display
+          - globals.set:
+              id: my_interval
+              value: '2'

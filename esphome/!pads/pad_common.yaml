@@ -1,0 +1,110 @@
+esphome:
+  name: $devicename
+  platform: $platform 
+  board: $board
+  libraries:
+    - "Keypad"
+    - "Keypad_I2C"
+  on_boot:
+    # - switch.turn_on: led_id 
+    - lambda: my_boot();
+  # platformio_options:
+  #   board_build.f_flash: 80000000L
+  on_loop:
+    - lambda: my_loop();
+  includes:
+    - "!pads/my_main.h"
+    
+<<: !include "pad_display.yaml"
+<<: !include "pad_sensors.yaml"
+<<: !include "pad_switch.yaml"
+<<: !include "pad_text_sensors.yaml"
+<<: !include "pad_scripts.yaml"
+
+interval:
+  - interval: 3s
+    then:
+      lambda: alarm_LED();
+  - interval: 1s
+    then:
+      if:
+        condition:
+          api.connected:
+        then:
+          lambda: screen_roll();
+
+api:
+  id: my_api
+  services:
+    - service: message
+      variables:
+        text: string
+      then:
+        - lambda: options_service(text);
+
+logger:
+  level: INFO
+globals:
+  - id: key
+    type: std::string
+    restore_value: no
+    initial_value: ''
+  - id: password_str
+    type: std::string
+    restore_value: no
+    initial_value: ''
+  - id: password_str_old
+    type: std::string
+    restore_value: no
+    initial_value: ''
+  - id: message_txt
+    type: std::string
+    restore_value: no
+    initial_value: ''
+  - id: my_interval
+    type: byte
+    restore_value: no
+    initial_value: '0'
+  - id: options
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+  - id: arm_delay
+    type: byte
+    initial_value: '$arm_delay_max' 
+    restore_value: no
+  - id: arm_delay_max
+    type: byte  
+    initial_value: '$arm_delay_max' 
+  - id: relay_pw
+    type: std::string
+    initial_value: '"$relay_pw"'
+  - id: relay_present
+    type: bool
+    initial_value: '$relay_present'
+  - id: api_con
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+time:
+  - platform: sntp
+    id: esptime
+  # - platform: homeassistant
+  #   id: esptime
+
+ota:
+web_server:
+  port: 80
+
+output:
+  - platform: $output_platform
+    id: buzzer
+    frequency: 440 Hz
+    pin:
+      number: $output_pin
+
+status_led:
+  pin: 
+    number: $status_led
+    inverted: true

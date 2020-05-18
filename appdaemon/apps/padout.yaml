@@ -1,0 +1,80 @@
+padoutKeys:
+  module: padKeys
+  class: padKeys
+  key: sensor.padout_output_key
+  message_service: esphome.padout_message
+  keys: 
+    # A:  
+    #   entity_id: cover.garage_ha
+    #   service: cover.open_cover
+    #   message: Turning {1}*Beep1*script!
+    B:  
+      entity_id: cover.garage_ha
+      service: cover.stop_cover
+      message: Stoping*roll-up*door
+      condition:
+        entity_id: cover.garage_ha
+        state: open
+        alert: Door*must be*opened!
+    C:  
+      entity_id: cover.garage_ha
+      service: cover.close_cover
+      message: Closing*roll-up*door
+      condition:
+        entity_id: cover.garage_ha
+        state: open
+        alert: Door*must be*opened!
+    D:  
+      entity_id: switch.fence_all_doors
+      service: switch.turn_on
+      message: Opening*both*fence*doors
+      condition:
+        entity_id: cover.garage_ha
+        state: open
+        alert: Door*must be*opened!
+
+padoutCodes:
+  module: padCodes
+  class: padCodes
+  code: sensor.padout_code
+  message_service: esphome.padout_message
+  nuki:
+    lock: your id
+    bearer: your bearer
+    action_ok: script.nuki1_full_unlock
+    # action_ok: script.rpi_green_led
+    # action_ok: switch.sonoff_s20_00_relay
+    action_ko: script.beep1
+  codes: 
+    1234:
+      enabled: true
+      options: # only first 4 will display, the rest will work without being displayed
+        A:
+          name: Open roll-up door
+          ha: 
+            entity_id: cover.garage_ha
+            service: cover.open_cover
+        B:
+          name: Stop roll-up door
+          ha: 
+            entity_id: cover.garage_ha
+            service: cover.stop_cover
+        C:
+          name: Close roll-up door 
+          ha: 
+            entity_id: cover.garage_ha
+            service: cover.close_cover
+        D:
+          name: Open fence doors 
+          ha: # any Home Assistant entity/service
+            entity_id: switch.fence_all_doors
+            service: switch.turn_on
+      time:
+        allowedFromDate: 2019-05-14T10:43:07.000Z 
+        allowedUntilDate: 2019-05-14T10:43:07.000Z
+        allowedWeekDays: 127
+        allowedFromTime: 2019-05-14T10:43:07.000Z
+        allowedUntilTime: 2019-05-14T10:43:07.000Z
+        lastActiveDate: 2019-05-14T10:43:07.000Z
+        creationDate: 2019-05-14T10:43:07.000Z
+        updateDate: 2019-08-31T04:58:14.633Z

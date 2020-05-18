@@ -1,0 +1,200 @@
+i2c:
+  sda: $sda_pin
+  scl: $scl_pin
+  id: bus_a
+  scan: false
+
+image:
+  - file: "!images/domiot.jpg"
+    id: domiot
+font:
+  - file: "!fonts/brlnsb.ttf"
+    id: font2
+    size: 26
+    glyphs: "'*#!%()+,-_:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz."
+  - file: "!fonts/arial.ttf"
+    id: font3
+    size: 18
+    glyphs: "*#!%()+,-_:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz."
+  - file: "!fonts/arial.ttf"
+    id: font4
+    size: 13
+    glyphs: "|/\\'*#!%()+,-_:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz."
+
+display:
+  - platform: ssd1306_i2c
+    model: "SSD1306 128x64"
+    address: 0x3C
+    id: my_display
+    pages:
+      - id: connecting
+        lambda: |-
+          String l = "|/-\\|/-\\";
+          static byte c = 0;
+          if (c==l.length()-1) c = 0; else c++;
+          it.rectangle(0, 0, it.get_width()-1, it.get_height()-1);
+          it.image(0, 0, id(domiot));
+          it.printf(it.get_width()/2, 38, id(font3), TextAlign::CENTER, "Connecting");
+          it.printf(it.get_width()/2, 54, id(font4), TextAlign::CENTER, l.substring(c, c+1).c_str());
+      - id: wrong_pw
+        lambda: |-
+          it.printf(it.get_width()/2, 1, id(font3), TextAlign::TOP_CENTER, "INFO");
+          it.printf(it.get_width()/2, it.get_height()/2, id(font3), TextAlign::CENTER, "Wrong");
+          it.printf(it.get_width()/2, it.get_height(),   id(font3), TextAlign::BOTTOM_CENTER, "password!");
+      - id: checking_pw
+        lambda: |-
+          it.printf(it.get_width()/2, 1, id(font3), TextAlign::TOP_CENTER, "INFO");
+          it.printf(it.get_width()/2, it.get_height()/2, id(font3), TextAlign::CENTER, "Checking");
+          it.printf(it.get_width()/2, it.get_height(),   id(font3), TextAlign::BOTTOM_CENTER, "password!");
+      - id: key_p
+        lambda: |-
+          it.printf(it.get_width()/2, 1, id(font3), TextAlign::TOP_CENTER, "Password");
+          std::string tp = "";
+          tp.insert(0, id(password_str).length()-1, 'x'); 
+          tp.append(id(key)); 
+          it.printf(it.get_width()/2, it.get_height()/4*2-4, id(font3), TextAlign::CENTER, tp.c_str());
+          it.printf(it.get_width()/2, it.get_height()/4*3-4, id(font4), TextAlign::CENTER, "tap #,A,B,C or D");
+          it.printf(it.get_width()/2, it.get_height(), id(font4), TextAlign::BOTTOM_CENTER,"or max 6 digits!");
+      - id: time_p
+        lambda: |-
+          it.strftime(it.get_width()/2,  1, id(font3), TextAlign::TOP_CENTER,"%A", id(esptime).now());
+          it.strftime(it.get_width()/2, it.get_height()/2, id(font2), TextAlign::CENTER,"%H:%M:%S", id(esptime).now());
+          it.strftime(it.get_width()/2, it.get_height()-1, id(font3), TextAlign::BOTTOM_CENTER, "%d-%m-%Y", id(esptime).now());
+      - id: temp_p
+        lambda: |-
+          it.filled_rectangle(0, 0, it.get_width()-1, it.get_height()/3 + 1);
+          it.printf(it.get_width()/2,  1, id(font3), COLOR_OFF, TextAlign::TOP_CENTER, "Temp - Hum");
+          it.printf(1, it.get_height()/2, id(font3), TextAlign::CENTER_LEFT,  "Out:");
+          #ifdef HOMEASSISTANT
+            if (id(outside_temp).has_state()) {
+              it.printf(80, it.get_height()/2, id(font3), TextAlign::CENTER_RIGHT,"%.1f°", id(outside_temp).state);
+              it.printf(it.get_width()-1, it.get_height()/2, id(font3), TextAlign::CENTER_RIGHT, "%.0f%%", id(outside_hum).state);
+            } 
+            it.printf(1, it.get_height()-1, id(font3), TextAlign::BOTTOM_LEFT, "In:");
+            if (id(inside_temp).has_state()) {
+              it.printf(80, it.get_height()-1, id(font3), TextAlign::BOTTOM_RIGHT,  "%.1f°", id(inside_temp).state);
+              it.printf(it.get_width()-1, it.get_height()-1, id(font3), TextAlign::BOTTOM_RIGHT, "%.0f%%", id(inside_hum).state);
+            } 
+          #endif
+      - id: garage_p
+        lambda: |-
+          it.printf(it.get_width()/2, 1, id(font3), TextAlign::TOP_CENTER, "Garage door");
+          #ifdef HOMEASSISTANT
+            if (id(cover).has_state())
+              it.printf(it.get_width()/2, it.get_height()/2, id(font2), TextAlign::CENTER, id(cover).state.c_str());
+            if (id(time_2close).has_state() && id(time_2close).state != "off")
+              it.printf(it.get_width()/2, it.get_height()-1, id(font3), TextAlign::BOTTOM_CENTER , "Closing in: %sm", id(time_2close).state.c_str());
+          #endif
+      - id: alarm_p
+        lambda: |-
+          it.printf(it.get_width()/2, 1, id(font3), TextAlign::TOP_CENTER, "Home alarm");
+          #ifdef HOMEASSISTANT
+            std::string s = id(alarm_id).state;
+            int x1, y1, width, height;
+            it.get_text_bounds(it.get_width()/2, 32, s.c_str(), id(font2), TextAlign::CENTER, &x1, &y1, &width, &height);
+            if (id(alarm_id).has_state())
+              if (width <= it.get_width())
+                it.printf(it.get_width()/2, 32, id(font2), TextAlign::CENTER , "%s", s.c_str());
+                else {
+                  it.printf(it.get_width()/2, it.get_height()/2, id(font2), TextAlign::CENTER , "%s", s.substr(0, s.find('_')).c_str());
+                  it.printf(it.get_width()/2, it.get_height()  , id(font2), TextAlign::BOTTOM_CENTER , "%s", s.substr(s.find('_')+1).c_str());
+                }
+          #endif
+      - id: thermos_p
+        lambda: |-
+          auto v = 0; 
+          auto a = 1;
+          auto b = 93;
+          auto c = it.get_width()-1;
+          it.filled_rectangle(0, 0, it.get_width()-1, it.get_height()/5 + 2);
+          it.printf(it.get_width()/2, v, id(font4), COLOR_OFF, TextAlign::TOP_CENTER, "Thermostats");
+          #ifdef HOMEASSISTANT
+            v += it.get_height()/5 ;
+            v = v + 2;
+            it.printf(a, v, id(font4), TextAlign::LEFT,  "Downstairs:");
+            it.printf(b, v, id(font4), TextAlign::RIGHT, "%s", id(downstairs_t).state.c_str());
+            it.printf(c, v, id(font4), TextAlign::RIGHT, "%.1f°", id(downstairs_ct).state);
+            v += it.get_height()/5 ;
+            it.printf(a, v, id(font4), TextAlign::LEFT,  "Kitchen:");
+            it.printf(b, v, id(font4), TextAlign::RIGHT, "%s", id(kitchen_t).state.c_str());
+            it.printf(c, v, id(font4), TextAlign::RIGHT, "%.1f°", id(kitchen_ct).state);
+            v += it.get_height()/5 ;
+            it.printf(a, v, id(font4), TextAlign::LEFT,  "Suite");
+            it.printf(b, v, id(font4), TextAlign::RIGHT, "%s", id(suite_t).state.c_str());
+            it.printf(c, v, id(font4), TextAlign::RIGHT, "%.1f°", id(suite_ct).state);
+            v += it.get_height()/5 ;
+            it.printf(a, v, id(font4), TextAlign::LEFT,  "Office");
+            it.printf(b, v, id(font4), TextAlign::RIGHT, "%s", id(office_t).state.c_str());
+            it.printf(c, v, id(font4), TextAlign::RIGHT, "%.1f°", id(office_ct).state);
+          #endif
+      - id: choose_pw
+        lambda: |-
+          auto x = 5;
+          auto v = 0; 
+          it.filled_rectangle(0, 0, it.get_width()-1, it.get_height()/5 + 2);
+          const char* alarmStatus[] = {"A: ARM_NIGHT", "B: ARM_HOME", "C: ARM_AWAY", "D: DISARM"};
+          #ifdef HOMEASSISTANT
+            it.printf(it.get_width()/2, v, id(font4), COLOR_OFF, TextAlign::TOP_CENTER, "Alarm is:%s", id(alarm_id).state.c_str());
+            v = v + 2;
+            for (byte c = 0; c < sizeof(alarmStatus) / sizeof(alarmStatus[0]); c++)
+            {
+              v += it.get_height()/5 ;
+              it.printf(x, v, id(font4), TextAlign::LEFT, alarmStatus[c]);
+            }
+          #endif
+      - id: msg_p
+        lambda: |-
+          #ifdef HOMEASSISTANT
+            auto v = 0; 
+            std::string s = "*";
+            std::string r = id(message_txt).c_str() ;
+            auto a = TextAlign::TOP_CENTER;
+            auto b = id(font3);
+            auto c = it.get_width()/2;
+            auto d = 4;
+            auto g = c;
+            auto h = 0;
+            if (r != "")
+              if (id(options)) {
+                a = TextAlign::TOP_LEFT;
+                b = id(font4);
+                c = 1;
+                d = 5;
+                h = 2;
+              }
+              for (size_t i = 0; i < d; i++) {
+                auto e = COLOR_ON;
+                auto f = a;
+                if (i==0 && id(options)) {
+                  it.filled_rectangle(0, 0, it.get_width()-1, it.get_height()/d-1+h);
+                  f = TextAlign::TOP_CENTER;
+                  e = COLOR_OFF;
+                } else g = c;
+                it.print(g, v, b, e, f, r.substr(0, r.find(s)).c_str());
+                auto p = r.find(s);
+                if (p == -1) return;
+                r = r.substr(p+1);
+                v += it.get_height()/d-1+h ;
+              }
+          #endif
+      - id: wifi_p
+        lambda: |-
+          it.filled_rectangle(0, 0, it.get_width()-1, it.get_height()/4);
+          it.printf(it.get_width()/2, 0, id(font4), COLOR_OFF, TextAlign::TOP_CENTER, "$devicename.local");
+          if (id(wifi_sg).has_state())
+            it.printf(it.get_width()/2, it.get_height()/4, id(font4), TextAlign::TOP_CENTER, "Wifi: %.0f", id(wifi_sg).state);
+          if (id(wifi_ip).has_state())
+            it.printf(it.get_width()/2, it.get_height()/2, id(font4), TextAlign::TOP_CENTER, id(wifi_ip).state.c_str());
+          if (id(wifi_ssid).has_state())
+            it.printf(it.get_width()/2, it.get_height(), id(font4), TextAlign::BOTTOM_CENTER, id(wifi_ssid).state.c_str());
+      - id: arm_delay_p
+        lambda: |-
+          it.filled_rectangle(0, 0, it.get_width()-1, it.get_height()/3);
+          it.printf(it.get_width()/2, 0, id(font3), COLOR_OFF, TextAlign::TOP_CENTER, "Countdown");
+          it.printf(it.get_width()/2, it.get_height()/2, id(font2), TextAlign::CENTER, "%d", id(arm_delay));
+          it.printf(it.get_width()/2, it.get_height(), id(font4), TextAlign::BOTTOM_CENTER, "D to cancel!");
+      - id: relay_p
+        lambda: |-
+          it.printf(it.get_width()/2, 0, id(font3), TextAlign::TOP_CENTER, "$relay_name");
+          it.printf(it.get_width()/2, it.get_height()/2, id(font3), TextAlign::BASELINE_CENTER, "turned:");
+          it.printf(it.get_width()/2, it.get_height(), id(font2), TextAlign::BOTTOM_CENTER, id(relay).state ? "ON":"OFF");

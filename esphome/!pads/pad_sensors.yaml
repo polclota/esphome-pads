@@ -1,0 +1,46 @@
+binary_sensor:
+  - platform: status
+    id: d_status
+    name: $u_devicename status
+
+sensor:
+  - platform: wifi_signal
+    name: $u_devicename WiFi Signal
+    id: wifi_sg
+
+  - platform: homeassistant
+    id: outside_temp
+    entity_id: $out_temp
+    internal: true
+  - platform: homeassistant
+    id: outside_hum
+    entity_id: $out_hum
+    internal: true
+  - platform: homeassistant
+    id: inside_temp
+    entity_id: $in_temp
+    internal: true
+  - platform: homeassistant
+    id: inside_hum
+    entity_id: $in_hum
+    internal: true
+  - platform: homeassistant
+    id: downstairs_ct 
+    entity_id: sensor.sonoff_s20_01_temperature
+    internal: true
+  - platform: homeassistant
+    id: upstairs_ct 
+    entity_id: sensor.sonoff_4ch_01_t
+    internal: true
+  - platform: homeassistant
+    id: suite_ct 
+    entity_id: sensor.sonoff_s20_05_temperature
+    internal: true
+  - platform: homeassistant
+    id: office_ct 
+    entity_id: sensor.sonoff_t1_2ch_temperature
+    internal: true
+  - platform: homeassistant
+    id: kitchen_ct 
+    entity_id: sensor.sonoff_th_10_temperature
+    internal: true

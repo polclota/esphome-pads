@@ -10,7 +10,7 @@ It requires Keypad_I2C library to function properly.
 
 So, copy Keypad_I2C directory to every keypad lib directory.
 
-It also includes some pcb prototype designs and pictures an appdeamon example and a Homeassistant alarm configuration.
+It also includes some pcb prototype designs, pictures an appdeamon example and a Homeassistant alarm configuration.
 
 Added frequency: 400kHz to file !pads\pad_display.yaml as I was experiencing problems connecting to wifi. It seems that when screen is too dens in pixels it keeps the bus too busy and causes problems connecting so increasing frequency speeds up whole the process.
 

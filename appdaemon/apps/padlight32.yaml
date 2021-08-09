@@ -5,37 +5,37 @@ padlight32Keys:
   message_service: esphome.padlight_message
   keys: 
     1+:
-      entity_id: switch.office_relays_relay_1
+      entity_id: switch.oixsonoff_4ch_01_relay_1
       service: switch.toggle
       # message: Toggling PC
     2+:
-      entity_id: switch.office_relays_relay_2
+      entity_id: switch.oixsonoff_4ch_01_relay_2
       service: switch.toggle
     3+: 
-      entity_id: switch.office_relays_relay_3
+      entity_id: switch.oixsonoff_4ch_01_relay_3
       service: switch.toggle
     4+: 
-      entity_id: switch.office_relays_relay_4
+      entity_id: switch.oixsonoff_4ch_01_relay_4
       service: switch.toggle
     5+: 
       service: switch.toggle
-      entity_id: switch.sonoff_s20_00_relay
+      entity_id: switch.sonoff_basic_11_relay
       message: 'Commutada*llum*menjador*de: {0} a {1}!'
-      # entity_id: switch.rpi1_built_in_gpio_office_lens
+      # entity_id: switch.modbus_reader_switch
       # message: 'Commutada*la lupa*del despatx*de: {0} a {1}!'
-      # service: script.beep1
+      # service: script.beep
     6+: 
       entity_id: switch.sonoff_t1_2ch_relay_2
       service: switch.toggle
       message: 'Commutant*la llum*del despatx*de: {0} a {1}!'
     7+: 
-      service: script.on_press_sonoffs20_05 
+      service: script.on_press_suite 
       message: 'Commutant*thermostat*suite*de: {0} a {1}!'
     8+: 
-      service: script.on_press_sonoffth_10
+      service: script.on_press_kitchen
       message: 'Commutant*thermostat*cuina*de: {0} a {1}!'
     9+: 
-      service: script.on_press_sonoffs20_06 
+      service: script.on_press_office 
       message: 'Commutant*thermostat*oficina*de: {0} a {1}!'
     0+: 
       service: script.all_therm_off
@@ -73,11 +73,11 @@ padlight32Keys:
       entity_id: input_boolean.boolean_5
       message: Commutant*tancat auto*porta garage*de {0} a {1}!
       # service: switch.toggle
-      # entity_id: switch.sonoff_s20_00_relay
+      # entity_id: switch.sonoff_basic_11_relay
       # message: 'Commutada*llum*menjador*de: {0} a {1}!'
     "#+":
       service: switch.toggle
-      entity_id: switch.sonoff_s20_00_relay
+      entity_id: switch.sonoff_basic_11_relay
       message: Commutant*llum*menjador*de {0} a {1}!
 
 padlightCodes:
@@ -86,11 +86,11 @@ padlightCodes:
   code: sensor.padlight_code
   message_service: esphome.padlight_message
   nuki:
-    lock: your id
-    bearer: your bearer
+    lock: "407715349"
+    bearer: 8d444b202d519b2ef963e839d8447d7b977c4e3a8e1d105cf89a21bb059ee35f145640ace732bd8e
     # action_ok: script.nuki1_full_unlock
     action_ok: script.rpi_green_led
-    # action_ok: switch.sonoff_s20_00_relay
+    # action_ok: switch.sonoff_basic_11_relay
     action_ko: script.rpi_red_led
   codes: 
     1234:
@@ -101,7 +101,7 @@ padlightCodes:
           # name: Lampada menajdor
           name: Red green
           ha: # any Home Assistant entity/service
-            # entity_id: switch.sonoff_s20_00_relay
+            # entity_id: switch.sonoff_basic_11_relay
             # service: switch.toggle
             service: script.rpi_green_led
             # relay: 1 # internal really number
@@ -117,17 +117,17 @@ padlightCodes:
           name: Fence door right
           ha: # any Home Assistant entity/service
             service: script.beep1
-            # entity_id: switch.office_relays_relay_1
+            # entity_id: switch.oixsonoff_4ch_01_relay_1
             # service: switch.toggle
         C:
           name: Fence both doors
           ha: # any Home Assistant entity/service
-            entity_id: switch.office_relays_relay_1
+            entity_id: switch.oixsonoff_4ch_01_relay_1
             service: switch.toggle
         D:
           name: Garage rool up
           ha: # any Home Assistant entity/service
-            entity_id: switch.office_relays_relay_1
+            entity_id: switch.oixsonoff_4ch_01_relay_1
             service: switch.toggle
       time:
         allowedFromDate: 2019-05-14T10:43:07.000Z 

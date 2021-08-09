@@ -47,17 +47,17 @@ text_sensor:
             value: '1'
   - platform: homeassistant
     id: downstairs_t 
-    entity_id: climate.thermostat1
+    entity_id: climate.downstairs
     internal: true
   - platform: homeassistant
     id: suite_t 
-    entity_id: climate.thermostat3
+    entity_id: climate.suite
     internal: true
   - platform: homeassistant
     id: office_t 
-    entity_id: climate.thermostat4
+    entity_id: climate.office
     internal: true
   - platform: homeassistant
     id: kitchen_t 
-    entity_id: climate.thermostat5
+    entity_id: climate.kitchen
     internal: true

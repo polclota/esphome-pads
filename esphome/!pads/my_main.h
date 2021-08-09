@@ -142,9 +142,14 @@ void text_sensor_key_plus()
   {
     if (id(key) == "*")
     {
-      id(thermos_p).show();
+      if (id(api_connected))
+        id(thermos_p).show();
+      else
+      {
+        id(message_txt) = "Not*connected!";
+        id(msg_p).show();
+      }
       id(my_display).update();
-      id(my_interval) = 0;
     }
     else if (id(key) == "#" && id(password_str) == "")
     {
@@ -217,6 +222,7 @@ void text_sensor_key_plus()
     }
   }
 }
+
 void alarm_LED()
 {
 #ifdef HOMEASSISTANT
@@ -228,9 +234,9 @@ void alarm_LED()
     id(led_id).turn_off();
 #endif
 }
+
 void screen_roll()
 {
-  id(api_con) = true;
   // turn off choose/options screen
   turn_off_choose();
   // arm alarm after delay
@@ -269,8 +275,10 @@ void screen_roll()
     else
       id(my_interval) += 1;
   else
+  {
     id(connecting).show();
-  id(my_display).update();
+    id(my_display).update();
+  }
 }
 
 void keypadEvent(KeypadEvent myKey)
@@ -328,6 +336,8 @@ void keypadEvent(KeypadEvent myKey)
   ESP_LOGI("keypadEvent", "done loop %ds!", m - p);
 }
 
+boolean done = false;
+
 void my_loop()
 {
   char myKey = myKeypad.getKey();
@@ -341,4 +351,11 @@ void my_boot()
   myKeypad.begin(makeKeymap(keys));
   buzzer_on();
   // myKeypad.addEventListener(keypadEvent); // Add an event listener.
+}
+
+byte c = 0;
+
+void not_connected_yet()
+{
+  // whatever you want to do while no connected
 }

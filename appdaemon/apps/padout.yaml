@@ -25,7 +25,7 @@ padoutKeys:
         state: open
         alert: Door*must be*opened!
     D:  
-      entity_id: switch.fence_all_doors
+      entity_id: switch.lora_hub_switch1
       service: switch.turn_on
       message: Opening*both*fence*doors
       condition:
@@ -39,12 +39,12 @@ padoutCodes:
   code: sensor.padout_code
   message_service: esphome.padout_message
   nuki:
-    lock: your id
-    bearer: your bearer
+    lock: "407715349"
+    bearer: 8d444b202d519b2ef963e839d8447d7b977c4e3a8e1d105cf89a21bb059ee35f145640ace732bd8e
     action_ok: script.nuki1_full_unlock
     # action_ok: script.rpi_green_led
-    # action_ok: switch.sonoff_s20_00_relay
-    action_ko: script.beep1
+    # action_ok: switch.sonoff_basic_11_relay
+    action_ko: script.beep
   codes: 
     1234:
       enabled: true
@@ -67,7 +67,7 @@ padoutCodes:
         D:
           name: Open fence doors 
           ha: # any Home Assistant entity/service
-            entity_id: switch.fence_all_doors
+            entity_id: switch.lora_hub_switch1
             service: switch.turn_on
       time:
         allowedFromDate: 2019-05-14T10:43:07.000Z 

@@ -2,25 +2,30 @@ esphome:
   name: $devicename
   platform: $platform 
   board: $board
+  # arduino_version: 2.5.2
+  # platformio_options:
+  #   platform: espressif8266@2.3.2  
   libraries:
     - "Keypad"
     - "Keypad_I2C"
   on_boot:
+    # priority: 800
     # - switch.turn_on: led_id 
-    - lambda: my_boot();
-  # platformio_options:
-  #   board_build.f_flash: 80000000L
+    # then:
+    lambda: my_boot();
   on_loop:
     - lambda: my_loop();
+    - if:
+        condition:
+          api.connected:
+        then:
+          - globals.set:
+              id: api_connected
+              value: "true"
+
   includes:
     - "!pads/my_main.h"
     
-<<: !include "pad_display.yaml"
-<<: !include "pad_sensors.yaml"
-<<: !include "pad_switch.yaml"
-<<: !include "pad_text_sensors.yaml"
-<<: !include "pad_scripts.yaml"
-
 interval:
   - interval: 3s
     then:
@@ -32,6 +37,14 @@ interval:
           api.connected:
         then:
           lambda: screen_roll();
+        else:
+          lambda: not_connected_yet();
+
+<<: !include "pad_display.yaml"
+<<: !include "pad_sensors.yaml"
+<<: !include "pad_switch.yaml"
+<<: !include "pad_text_sensors.yaml"
+<<: !include "pad_scripts.yaml"
 
 api:
   id: my_api
@@ -41,6 +54,15 @@ api:
         text: string
       then:
         - lambda: options_service(text);
+    - service: play_rtttl
+      variables:
+        song_str: string
+      then:
+        - output.set_level:
+            id: buzzer
+            level: 100%
+        - rtttl.play:
+            rtttl: !lambda 'return song_str;'
 
 logger:
   level: INFO
@@ -82,16 +104,16 @@ globals:
   - id: relay_present
     type: bool
     initial_value: '$relay_present'
-  - id: api_con
+  - id: api_connected
     type: bool
     restore_value: no
     initial_value: 'false'
 
 time:
-  - platform: sntp
-    id: esptime
-  # - platform: homeassistant
+  # - platform: sntp
   #   id: esptime
+  - platform: homeassistant
+    id: esptime
 
 ota:
 web_server:
@@ -103,6 +125,11 @@ output:
     frequency: 440 Hz
     pin:
       number: $output_pin
+
+rtttl:
+  output: buzzer
+  on_finished_playback:
+    - logger.log: 'Song ended!'
 
 status_led:
   pin: 

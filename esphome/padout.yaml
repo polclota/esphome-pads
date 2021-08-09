@@ -8,10 +8,12 @@ substitutions:
   relay_present: "false"
   relay_name: "" # give a name to the relay, let's say Gate, Door, etc. It must be defined even if it's not present.
   relay_pw: "" # max length 6 digit
-  out_temp: "sensor.rpi1_ble_outdoors_lywsd03mmc_temperature"
-  out_hum: "sensor.rpi1_ble_outdoors_lywsd03mmc_humidity"
-  in_temp: "sensor.sonoff_s20_01_temperature"
-  in_hum: "sensor.sonoff_s20_01_humidity"
+
+  out_temp: "sensor.lywsd03mmc_1_temperature"
+  out_hum: "sensor.lywsd03mmc_1_humidity"
+  in_temp: "sensor.lywsd03mmc_2_temperature"
+  in_hum: "sensor.lywsd03mmc_2_humidity"
+
   output_platform: esp8266_pwm
   output_pin: D7
   status_led: D4

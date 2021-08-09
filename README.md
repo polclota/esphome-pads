@@ -14,4 +14,6 @@ It also includes some pcb prototype designs and pictures.
 
 Let me know how responsive your keypad ends up as one of the issues you may encounter is a certain lack in key responsiveness due to ESPHome sensors update. 
 
+Added frequency: 400kHz to file !pads\pad_display.yaml as I was experiencing problems connecting to wifi. It seems that when screen is too dens in pixels it keeps the bus too busy and causes problems connecting so increasing frequency speeds up whole the process.
+
 Try it out and let me know!

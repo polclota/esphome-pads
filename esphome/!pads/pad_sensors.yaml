@@ -26,11 +26,11 @@ sensor:
     internal: true
   - platform: homeassistant
     id: downstairs_ct 
-    entity_id: sensor.sonoff_s20_01_temperature
+    entity_id: sensor.lywsd03mmc_1_temperature
     internal: true
   - platform: homeassistant
     id: upstairs_ct 
-    entity_id: sensor.sonoff_4ch_01_t
+    entity_id: sensor.sonoff_dual_13_bme280_temperature
     internal: true
   - platform: homeassistant
     id: suite_ct 
@@ -42,5 +42,5 @@ sensor:
     internal: true
   - platform: homeassistant
     id: kitchen_ct 
-    entity_id: sensor.sonoff_th_10_temperature
+    entity_id: sensor.sonoff_s20_03_bme280_temperature
     internal: true

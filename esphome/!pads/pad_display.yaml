@@ -3,11 +3,17 @@ i2c:
   scl: $scl_pin
   id: bus_a
   scan: false
+  frequency: 400kHz
 
+# do not load images if you are experiencing problems connecting to wifi
 image:
   - file: "!images/domiot.jpg"
     id: domiot
 font:
+  # - file: "!fonts/orbitron-regular.ttf"
+  #   id: font1
+  #   size: 26
+  #   glyphs: "'*#!%()+,-_:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz."
   - file: "!fonts/brlnsb.ttf"
     id: font2
     size: 26
@@ -33,7 +39,18 @@ display:
           static byte c = 0;
           if (c==l.length()-1) c = 0; else c++;
           it.rectangle(0, 0, it.get_width()-1, it.get_height()-1);
-          it.image(0, 0, id(domiot));
+
+          // option 1, jpg logo
+          it.image(0, 0, id(domiot)); // do not load images if you are experiencing problems connecting to wifi
+          
+          // option 2, text logo
+          // it.printf(it.get_width()/2, 18, id(font1), TextAlign::CENTER, "domIoT");
+
+          // option 3, text logo inverted
+          // it.filled_rectangle(0, 0, it.get_width()-1, it.get_height()/2 - 2);
+          // it.printf(it.get_width()/2, 18, id(font1), COLOR_OFF, TextAlign::CENTER, "domIoT");
+
+
           it.printf(it.get_width()/2, 38, id(font3), TextAlign::CENTER, "Connecting");
           it.printf(it.get_width()/2, 54, id(font4), TextAlign::CENTER, l.substring(c, c+1).c_str());
       - id: wrong_pw

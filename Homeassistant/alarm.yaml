@@ -1,0 +1,250 @@
+alarm_control_panel:
+  - platform: manual
+    name: Home Alarm
+    code: !secret alarm_code
+    code_arm_required: false
+    arming_time: 0
+    delay_time: 10
+
+automation:
+  - alias: "from unknown to disarmed"
+    initial_state: "on"
+    trigger:
+      - platform: state
+        entity_id: alarm_control_panel.home_alarm
+        to: "unknown"
+    action:
+      - service: alarm_control_panel.alarm_disarm
+        data:
+          entity_id: alarm_control_panel.home_alarm
+          code: !secret alarm_code
+
+  - alias: "Trigger alarm while armed night"
+    initial_state: "on"
+    trigger:
+      - platform: state
+        to: "on"
+        entity_id: group.PIR_sensors_downstairs, group.rf_perimeter
+    condition:
+      - condition: state
+        entity_id: alarm_control_panel.home_alarm
+        state: armed_night
+    action:
+      - service: esphome.alarm_sound_alarm_once
+      - service: alarm_control_panel.alarm_trigger
+        entity_id: alarm_control_panel.home_alarm
+      - service: notify.pol_telegram
+        data_template:
+          title: "NIGHT ALARM {{ states('alarm_control_panel.home_alarm') }}!"
+          message: "By sensor {{ trigger.to_state.attributes.friendly_name }}!"
+
+  - alias: Trigger alarm while armed away
+    initial_state: "on"
+    trigger:
+      - platform: state
+        to: "on"
+        entity_id: group.PIR_sensors, group.rf_door
+
+    condition:
+      - condition: state
+        entity_id: alarm_control_panel.home_alarm
+        state: armed_away
+    action:
+      - service: esphome.alarm_sound_alarm_once
+      - service: alarm_control_panel.alarm_trigger
+        entity_id: alarm_control_panel.home_alarm
+      - service: notify.pol_telegram
+        data_template:
+          title: "HOME ALARM {{ states('alarm_control_panel.home_alarm') }}!"
+          message: "By sensor {{ trigger.to_state.attributes.friendly_name }}!"
+
+  - alias: Trigger alarm while armed home
+    initial_state: "on"
+    trigger:
+      - platform: state
+        entity_id: group.rf_perimeter
+      - platform: state
+        entity_id: sensor.garage_door_position
+        to: "Middle"
+    condition:
+      - condition: state
+        entity_id: alarm_control_panel.home_alarm
+        state: armed_home
+    action:
+      - service: esphome.alarm_sound_alarm_once
+      - service: alarm_control_panel.alarm_trigger
+        entity_id: alarm_control_panel.home_alarm
+      - service: notify.pol_telegram
+        data_template:
+          title: "AWAY ALARM {{ states('alarm_control_panel.home_alarm') }}!"
+          message: "By sensor {{ trigger.to_state.attributes.friendly_name }}!"
+
+  - alias: "Alarm triggered"
+    initial_state: "on"
+    trigger:
+      - platform: state
+        entity_id: alarm_control_panel.home_alarm
+        to: "triggered"
+    action:
+      - service: notify.pol_telegram
+        data:
+          title: "Attention!"
+          message: "{{ trigger.to_state.attributes.friendly_name }} {{ states('alarm_control_panel.home_alarm') }}"
+      - service: switch.turn_on
+        entity_id: switch.alarm_siren
+
+  - alias: Alarm armed
+    initial_state: "on"
+    trigger:
+      - platform: state
+        entity_id: alarm_control_panel.home_alarm
+        to: "armed_night"
+      - platform: state
+        entity_id: alarm_control_panel.home_alarm
+        to: "armed_away"
+      - platform: state
+        entity_id: alarm_control_panel.home_alarm
+        to: "armed_home"
+    action:
+      - service: esphome.padofi_play_rtttl
+        data:
+          song_str: MissionImp:d=16,o=6,b=95:32d,32d#,32d,32d#,32d,32d#,32d,32d#,32d,32d,32d#,32e,32f,32f#,32g,g
+      - service: esphome.padent_play_rtttl
+        data:
+          song_str: MissionImp:d=16,o=6,b=95:32d,32d#,32d,32d#,32d,32d#,32d,32d#,32d,32d,32d#,32e,32f,32f#,32g,g
+      - service: lock.lock
+        entity_id: lock.main_door
+      - service: cover.close_cover
+        entity_id: cover.garage_ha
+
+  - alias: "Alarm disarmed"
+    initial_state: "on"
+    trigger:
+      - platform: state
+        entity_id: alarm_control_panel.home_alarm
+        to: "disarmed"
+    action:
+      - service: script.disarm_alarm
+      - service: notify.pol_telegram
+        data_template:
+          title: "ALARM!"
+          message: "Alarm from {{ trigger.from_state.state }} to {{ trigger.to_state.state }}"
+      - condition: template
+        value_template: "{{ trigger.from_state.state.split('_')[0]=='armed' }}"
+      - service: esphome.padofi_play_rtttl
+        data:
+          song_str: Birdy:d=16,o=5,b=160:32e,32d#,32d,32c#4,8p,32e,32d#,32d,32c#4,8p
+      - service: esphome.padent_play_rtttl
+        data:
+          song_str: Birdy:d=16,o=5,b=160:32e,32d#,32d,32c#4,8p,32e,32d#,32d,32c#4,8p
+
+  - alias: Actions that disarm alarm
+    initial_state: true
+    trigger:
+      - entity_id: switch.lora_hub_switch2, switch.fence_all_doors, switch.four_relay4, switch.garage_relay
+        platform: state
+        to: "on"
+      - entity_id: sensor.garage_door_position
+        platform: state
+        to: "Fully open"
+      - entity_id: lock.main_door
+        platform: state
+        to: "unlocked"
+    action:
+      - service: script.disarm_alarm_conditional
+
+  - alias: "My home away, arm alarm"
+    initial_state: "on"
+    trigger:
+      platform: template
+      value_template: >
+        {{ 
+            is_state("alarm_control_panel.home_alarm", "disarmed")
+              and 
+            is_state("group.persons","not_home")
+              and 
+            is_state("group.rf_door","off") 
+              and 
+            not is_state("sensor.sm_a715f_wifi_connection","OixCanCasicaRouter") 
+              and 
+            not is_state("sensor.sm_a715f_wifi_connection","OixCanCasicaRouter2") 
+              and 
+            not is_state("sensor.sm_a715f_wifi_connection","Oix-AP(2.4G)") 
+        }}
+      for: "00:30:00"
+    condition:
+      condition: time
+      before: "23:00:00"
+      after: "08:00:00"
+    action:
+      - service: notify.pol_telegram
+        data:
+          title: Away?
+          message: "Seems like **no one's home**\nArming alarm away.\nTurning fans off.\nTurning office sw off."
+      - service: switch.turn_off
+        entity_id: switch.oixsonoff_4ch_01_relay_2,switch.oixsonoff_4ch_01_relay_3,switch.oixsonoff_4ch_01_relay_4
+      - service: climate.set_hvac_mode
+        entity_id: climate.office, climate.kitchen
+        data:
+          hvac_mode: "off"
+      - service: alarm_control_panel.alarm_arm_away
+        data:
+          entity_id: alarm_control_panel.home_alarm
+          code: !secret alarm_code
+
+  - alias: Downstairs lights off when armed night
+    initial_state: "on"
+    trigger:
+      - platform: state
+        entity_id: alarm_control_panel.home_alarm
+        to: "armed_night"
+    action:
+      - service: homeassistant.turn_off
+        entity_id: group.downstairs_lights
+
+script:
+  disarm_alarm:
+    sequence:
+      - service: alarm_control_panel.alarm_disarm
+        data:
+          entity_id: alarm_control_panel.home_alarm
+          code: !secret alarm_code
+      - service: script.stop_media
+      - service: switch.turn_off
+        entity_id: switch.alarm_siren
+
+  disarm_alarm_conditional:
+    sequence:
+      - condition: template
+        value_template: "{{ states.alarm_control_panel.home_alarm.state.split('_')[0]=='armed' or is_state('alarm_control_panel.home_alarm', 'triggered')}}"
+      - service: alarm_control_panel.alarm_disarm
+        data:
+          entity_id: alarm_control_panel.home_alarm
+          code: !secret alarm_code
+      - service: script.stop_media
+      - service: switch.turn_off
+        entity_id: switch.alarm_siren
+
+  toggle_alarm:
+    sequence:
+      - data:
+          entity_id: alarm_control_panel.home_alarm
+          code: !secret alarm_code
+        service_template: >
+          {% if is_state('alarm_control_panel.home_alarm','disarmed') %}
+            alarm_control_panel.alarm_arm_night
+          {% else %}
+            alarm_control_panel.alarm_disarm
+          {% endif %}
+
+  toggle_alarm_home:
+    sequence:
+      - data:
+          entity_id: alarm_control_panel.home_alarm
+          code: !secret alarm_code
+        service_template: >
+          {% if is_state('alarm_control_panel.home_alarm','disarmed') %}
+            alarm_control_panel.alarm_arm_home
+          {% else %}
+            alarm_control_panel.alarm_disarm
+          {% endif %}

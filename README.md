@@ -1,4 +1,4 @@
-ESPHome keypad (work in progress).
+ESPHome keypad.
 
 It works in combination with appdemon to process key presses as well as Nuki codes.
 
